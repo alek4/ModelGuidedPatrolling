@@ -70,7 +70,7 @@ def generate_trajectory(seed):
 								benchmark=args.benchmark,
 								dynamic=False,
 								reward_weights=[10.0, 100.0],
-								reward_type='local_changes',
+								reward_type='weighted_idleness',
 								model='miopic',
 								seed=seed,)
 

@@ -6,3 +6,4 @@ Environment/.DS_Store
 ModelTrain/Data
 .DS_Store
 Evaluation/EvaluateModels/Results
+venv/

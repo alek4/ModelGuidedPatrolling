@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append('.')
 import optuna
 from optuna.trial import TrialState
 import os
@@ -53,7 +56,8 @@ def objective(trial: optuna.Trial):
 	# Learning rate
 	lr = trial.suggest_float("lr", low = 1e-5, high = 1e-3, step=1e-5)
 
-	experiment_name = "DRL_OPTUNA_TRIAL_" + str(trial.value)
+	print (type(trial))
+	experiment_name = "DRL_OPTUNA_TRIAL_" + str(trial.number)
 
 	env = DiscreteModelBasedPatrolling(n_agents=N,
 									   navigation_map=navigation_map,
@@ -133,7 +137,7 @@ if __name__ == "__main__":
 	print("Best trial:")
 	trial = study.best_trial
 
-	print("  Value: ", trial.value)
+	print("  Value: ", trial.number)
 
 	print("  Params: ")
 	for key, value in trial.params.items():
