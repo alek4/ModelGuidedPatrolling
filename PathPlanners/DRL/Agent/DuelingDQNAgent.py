@@ -318,6 +318,12 @@ class MultiAgentDuelingDQNAgent:
 			score = 0
 			length = 0
 			losses = []
+
+			# if (episode % 10 == 0):
+			# 	print("===== emptying cache ======")
+			# 	torch.cuda.empty_cache()
+			
+			#print(torch.cuda.memory_summary(device=None, abbreviated=False))
 			
 			# Initially sample noisy policy #
 			if self.noisy:

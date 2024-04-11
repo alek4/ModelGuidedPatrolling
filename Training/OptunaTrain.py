@@ -107,10 +107,10 @@ def objective(trial: optuna.Trial):
 		total_reward, _, _ = multiagent.evaluate_env(20)
 	
 		# Report the trial
-		study.report(total_reward)
+		trial.report(total_reward, train_step)
 	
 		# Handle pruning based on the intermediate value.
-		if study.should_prune():
+		if trial.should_prune():
 			raise optuna.TrialPruned()
 
 	return total_reward

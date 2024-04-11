@@ -402,8 +402,8 @@ if __name__ == "__main__":
 
     output_tensor = model(input_tensor, ground_truth_tensor)
 
-    print(output_tensor.shape)
-    print(input_tensor.shape)
+    # print(output_tensor)
+    # print(input_tensor)
 
     fig, ax = plt.subplots(1, 2)
 

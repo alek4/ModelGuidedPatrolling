@@ -35,7 +35,7 @@ model = VAEUnet(input_shape=input_shape, n_channels_in=2, n_channels_out=1, bili
 if args.benchmark == 'shekel':
 	model_path = r'runs\optuna\shekel\VAEUnet_shekel_test_trial_num_18.pth'
 elif args.benchmark == 'algae_bloom':
-	model_path = r'runs\optuna\algae_bloom\VAEUnet_algae_bloom_test_trial_num_12.pth'
+	model_path = r'runs/optuna/algae_bloom/VAEUnet_algae_bloom_test_trial_num_12.pth'
 
 
 model.load_state_dict(th.load(model_path, map_location=device))

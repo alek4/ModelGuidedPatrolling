@@ -72,13 +72,16 @@ multiagent = MultiAgentDuelingDQNAgent(env=env,
                                        lr=1e-4,
                                        noisy=False,
                                        train_every=5,
-                                       save_every=2000,
+                                    #    save_every=2000,
+                                       save_every=20,
                                        distributional=False,
                                        masked_actions=True,
                                        device=device,
                                        logdir=f'runs/DRL/{experiment_name}',
                                        eval_episodes=10,
                                        store_only_random_agent=False,
-                                       eval_every=1000)
+                                    #    eval_every=1000)
+                                       eval_every=10)
+multiagent.train(episodes=200)
 
-multiagent.train(episodes=20000)
+# multiagent.train(episodes=20000)

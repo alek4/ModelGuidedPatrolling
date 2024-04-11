@@ -147,13 +147,14 @@ if __name__ == '__main__':
 
     gt = algae_bloom(np.genfromtxt('Environment/Maps/map.txt', delimiter=' '), dt=0.05)
 
+
     m = gt.reset()
-    #gt.render()
+    gt.render()
 
     for _ in range(50):
         t0 = time.time()
         gt.reset()
-        #gt.render()
+        gt.render()
         
         for t in range(100):
             m = gt.step()
@@ -161,9 +162,5 @@ if __name__ == '__main__':
         print(time.time() - t0)
 
     
-        #gt.render()    
-
-
-        
-        
+        gt.render()    
         

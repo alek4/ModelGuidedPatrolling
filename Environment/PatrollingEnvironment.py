@@ -732,6 +732,7 @@ if __name__ == "__main__":
 		
 		from PathPlanners.LawnMower import LawnMowerAgent
 		from PathPlanners.NRRA import WanderingAgent
+		from PathPlanners.DRL.Agent.DuelingDQNAgent import MultiAgentDuelingDQNAgent
 		import time
 		
 		scenario_map = np.genfromtxt('Environment/Maps/map.txt', delimiter=' ')
@@ -752,16 +753,16 @@ if __name__ == "__main__":
 		                                   influence_radius=2,
 		                                   forgetting_factor=0.01,
 		                                   max_distance=400,
-		                                   benchmark='shekel',
+		                                   benchmark='algae_bloom',
 		                                   dynamic=False,
 		                                   reward_weights=[10, 10],
 		                                   reward_type='weighted_idleness',
-		                                   model='none',
+		                                   model='vaeUnet',
 		                                   seed=50000,
 		                                   int_observation=True,
-		                                   previous_exploration=True,
-		                                   pre_exploration_steps=50,
-		                                   pre_exploration_policy=preComputedExplorationPolicy("PathPlanners/VRP/vrp_paths.pkl", n_agents=N),
+		                                #    previous_exploration=True,
+		                                #    pre_exploration_steps=50,
+		                                #    pre_exploration_policy=preComputedExplorationPolicy("PathPlanners/VRP/vrp_paths.pkl", n_agents=N),
 		                                   )
 		
 		print(env.max_num_steps)
@@ -776,15 +777,49 @@ if __name__ == "__main__":
 			mse = []
 			rewards_list = []
 			
-			agent = {i: WanderingAgent(world=scenario_map, number_of_actions=8, movement_length=4, seed=0) for i in
-			         range(N)}
+			# agent = {i: WanderingAgent(world=scenario_map, number_of_actions=8, movement_length=4, seed=0) for i in
+			#          range(N)}
+			multiagent = MultiAgentDuelingDQNAgent(env=env,
+                                       memory_size=int(1E6),
+                                       batch_size=128,
+                                       target_update=500,
+                                       soft_update=False,
+                                       tau=0.001,
+                                       epsilon_values=[1.0, 0.05],
+                                       epsilon_interval=[0.0, 0.5],
+                                       learning_starts=100,
+                                       gamma=0.99,
+                                       lr=1e-4,
+                                       noisy=False,
+                                       train_every=5,
+                                    #    save_every=2000,
+                                       save_every=20,
+                                       distributional=False,
+                                       masked_actions=True,
+                                       device='cuda:0',
+                                       eval_episodes=10,
+                                       store_only_random_agent=False,
+                                    #    eval_every=1000)
+                                       eval_every=10)
+
+			state = multiagent.env.reset()
+
+			multiagent.load_model('runs/DRL/Experiment_benchmark_algae_bloom__model_vaeUnet_20240411-103144/BestPolicy.pth')
 			
 			while not all(done.values()):
+				positions_dict = multiagent.env.get_positions_dict()
+				actions = multiagent.select_masked_action(states=state, positions=positions_dict,
+															deterministic=True)
 				
+				actions = {agent_id: action for agent_id, action in actions.items() if not done[agent_id]}
+				
+				# Process the agent step #
+				next_state, rewards, done, info = multiagent.step(actions)
+
 				# actions = {i: np.random.randint(0,8) for i in done.keys() if not done[i]}
-				actions = {i: agent[i].move(env.fleet.vehicles[i].position.astype(int)) for i in done.keys() if
-				           not done[i]}
-				observations, rewards, done, info = env.step(actions)
+				# actions = {i: agent[i].move(env.fleet.vehicles[i].position.astype(int)) for i in done.keys() if
+				#            not done[i]}
+				# observations, rewards, done, info = env.step(actions)
 				
 				for i in range(N):
 					# If rewards dict does not contain the key, add it with 0 value #
@@ -793,7 +828,11 @@ if __name__ == "__main__":
 				
 				rewards_list.append([rewards[i] for i in range(N)])
 				
-				env.render()
+				# env.render()
+				multiagent.env.render()
+
+				# Update the state #
+				state = next_state
 				
 				print("Rewards: ", rewards)
 				print("Done: ", done)
