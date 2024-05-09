@@ -87,6 +87,8 @@ class Vehicle:
 		direction = np.array([np.cos(angle), np.sin(angle)])
 		if action_type == 'discrete':
 			direction = np.round(direction).astype(int)
+
+		# print("DIRECTION", direction)
 		
 		self.last_waypoints = []
 		
@@ -534,6 +536,9 @@ class DiscreteModelBasedPatrolling:
 		else:
 			movements_orders = actions
 		
+		# print("ACTIONS: ",actions)
+		# print("MOVEMENTS: ",movements_orders)
+
 		# Move the fleet #
 		self.fleet.move(movements_orders, action_type=action_type)
 		
@@ -740,9 +745,9 @@ if __name__ == "__main__":
 		N = 4
 		
 		initial_positions = np.array([[42, 32],
-		                              [50, 40],
-		                              [43, 44],
-		                              [35, 45]])
+									  [50, 40],
+								      [43, 44],
+									  [35, 45]])
 		
 		env = DiscreteModelBasedPatrolling(n_agents=N,
 		                                   navigation_map=scenario_map,
@@ -751,7 +756,7 @@ if __name__ == "__main__":
 		                                   movement_length=2,
 		                                   resolution=1,
 		                                   influence_radius=2,
-		                                   forgetting_factor=0.01,
+		                                   forgetting_factor=0.05,
 		                                   max_distance=400,
 		                                   benchmark='algae_bloom',
 		                                   dynamic=False,
@@ -760,6 +765,7 @@ if __name__ == "__main__":
 		                                   model='vaeUnet',
 		                                   seed=50000,
 		                                   int_observation=True,
+										   min_information_importance=0.1
 		                                #    previous_exploration=True,
 		                                #    pre_exploration_steps=50,
 		                                #    pre_exploration_policy=preComputedExplorationPolicy("PathPlanners/VRP/vrp_paths.pkl", n_agents=N),
@@ -770,6 +776,8 @@ if __name__ == "__main__":
 		
 		for m in range(10):
 			
+			print("START")
+
 			t0 = time.time()
 			env.reset()
 			done = {i: False for i in range(N)}
@@ -780,7 +788,8 @@ if __name__ == "__main__":
 			# agent = {i: WanderingAgent(world=scenario_map, number_of_actions=8, movement_length=4, seed=0) for i in
 			#          range(N)}
 			multiagent = MultiAgentDuelingDQNAgent(env=env,
-                                       memory_size=int(1E6),
+                                    #    memory_size=int(1E6),
+										memory_size=int(1E5),
                                        batch_size=128,
                                        target_update=500,
                                        soft_update=False,
@@ -792,19 +801,19 @@ if __name__ == "__main__":
                                        lr=1e-4,
                                        noisy=False,
                                        train_every=5,
-                                    #    save_every=2000,
-                                       save_every=20,
+                                       save_every=2000,
+                                    #    save_every=20,
                                        distributional=False,
                                        masked_actions=True,
                                        device='cuda:0',
                                        eval_episodes=10,
                                        store_only_random_agent=False,
-                                    #    eval_every=1000)
-                                       eval_every=10)
+                                       eval_every=1000)
+                                    #    eval_every=10)
 
 			state = multiagent.env.reset()
 
-			multiagent.load_model('runs/DRL/Experiment_benchmark_algae_bloom__model_vaeUnet_20240411-103144/BestPolicy.pth')
+			multiagent.load_model('runs/DRL/Experiment_benchmark_algae_bloom__model_vaeUnet_20240417-115147/FinalPolicy.pth')
 			
 			while not all(done.values()):
 				positions_dict = multiagent.env.get_positions_dict()
@@ -819,6 +828,7 @@ if __name__ == "__main__":
 				# actions = {i: np.random.randint(0,8) for i in done.keys() if not done[i]}
 				# actions = {i: agent[i].move(env.fleet.vehicles[i].position.astype(int)) for i in done.keys() if
 				#            not done[i]}
+				# print("ACTIONS: ", actions)
 				# observations, rewards, done, info = env.step(actions)
 				
 				for i in range(N):
@@ -834,11 +844,11 @@ if __name__ == "__main__":
 				# Update the state #
 				state = next_state
 				
-				print("Rewards: ", rewards)
-				print("Done: ", done)
-				print("Info: ", info)
+				# print("Rewards: ", rewards)
+				# print("Done: ", done)
+				# print("Info: ", info)
 				
-				plt.pause(0.2)
+				# plt.pause(0.2)
 				mse.append(info['mse'])
 			
 			print("Time: ", time.time() - t0)

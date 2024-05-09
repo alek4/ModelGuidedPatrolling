@@ -104,6 +104,9 @@ class MultiAgentDuelingDQNAgent:
 		self.num_atoms = num_atoms
 		self.train_every = train_every
 		self.masked_actions = masked_actions
+
+		self.memory_size = memory_size
+		self.alpha = alpha
 		
 		""" Automatic selection of the device """
 		self.device = device
@@ -134,7 +137,8 @@ class MultiAgentDuelingDQNAgent:
 		self.dqn_target.eval()
 		
 		""" Optimizer """
-		self.optimizer = optim.Adam(self.dqn.parameters(), lr=self.learning_rate)
+		# self.optimizer = optim.Adam(self.dqn.parameters(), lr=self.learning_rate)
+		self.optimizer = optim.SGD(self.dqn.parameters(), lr=self.learning_rate)
 		
 		""" Actual list of transitions """
 		self.transition = list()
@@ -250,6 +254,7 @@ class MultiAgentDuelingDQNAgent:
 		# Compute gradients and apply them
 		self.optimizer.zero_grad()
 		loss.backward()
+		# non riesce ad updatare i parametri del modello: CUDA OUT OF MEMORY (ADAM)
 		self.optimizer.step()
 		
 		# PER: update priorities
@@ -318,6 +323,13 @@ class MultiAgentDuelingDQNAgent:
 			score = 0
 			length = 0
 			losses = []
+
+			# wipe PER at the start of the episode
+			# will it resolve CUDA out of memory?
+			# obs_dim = self.env.observation_space.shape
+			# del self.memory
+			# self.memory = PrioritizedReplayBuffer(obs_dim, self.memory_size, self.batch_size, alpha=self.alpha,
+		    #                                   obs_dtype=np.uint8 if self.env.int_observation else np.float32)
 
 			# if (episode % 10 == 0):
 			# 	print("===== emptying cache ======")
@@ -414,7 +426,6 @@ class MultiAgentDuelingDQNAgent:
 				
 				# If training is ready
 				if len(self.memory) >= self.batch_size and episode >= self.learning_starts:
-					
 					# Update model parameters by backprop-bootstrapping #
 					if steps % self.train_every == 0:
 						loss = self.update_model()
@@ -424,6 +435,7 @@ class MultiAgentDuelingDQNAgent:
 					if self.soft_update:
 						self._target_soft_update()
 					elif episode % self.target_update == 0 and all(done.values()):
+						print("\thard update")
 						self._target_hard_update()
 			
 			if self.save_every is not None:

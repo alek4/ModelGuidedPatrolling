@@ -60,7 +60,8 @@ env = DiscreteModelBasedPatrolling(n_agents=N,
                                    )
 
 multiagent = MultiAgentDuelingDQNAgent(env=env,
-                                       memory_size=int(1E6),
+                                    #    memory_size=int(1E6),
+                                       memory_size=int(1E5),
                                        batch_size=128,
                                        target_update=500,
                                        soft_update=False,
@@ -72,16 +73,13 @@ multiagent = MultiAgentDuelingDQNAgent(env=env,
                                        lr=1e-4,
                                        noisy=False,
                                        train_every=5,
-                                    #    save_every=2000,
-                                       save_every=20,
+                                       save_every=2000,
                                        distributional=False,
                                        masked_actions=True,
                                        device=device,
                                        logdir=f'runs/DRL/{experiment_name}',
                                        eval_episodes=10,
                                        store_only_random_agent=False,
-                                    #    eval_every=1000)
-                                       eval_every=10)
-multiagent.train(episodes=200)
+                                       eval_every=1000)
 
-# multiagent.train(episodes=20000)
+multiagent.train(episodes=20000)
