@@ -813,7 +813,7 @@ if __name__ == "__main__":
 
 			state = multiagent.env.reset()
 
-			multiagent.load_model('runs/DRL/Experiment_benchmark_algae_bloom__model_vaeUnet_20240417-115147/FinalPolicy.pth')
+			multiagent.load_model('runs/DRL/Experiment_benchmark_algae_bloom__model_vaeUnet_20240514-125045/BestPolicy.pth')
 			
 			while not all(done.values()):
 				positions_dict = multiagent.env.get_positions_dict()

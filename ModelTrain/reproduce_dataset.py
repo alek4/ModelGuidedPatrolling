@@ -11,9 +11,9 @@ import cmasher as cmr
 
 # Load the dataset
 
-trajectories = np.load(r'ModelTrain\Data\trajectories_algae_bloom_test.npy')
+trajectories = np.load(r'ModelTrain/Data/trajectories_algae_bloom_test.npy')
 gts = np.load(r'ModelTrain/Data/gts_algae_bloom_test.npy')
-background = np.genfromtxt(r'Environment\Maps\map.txt')
+background = np.genfromtxt(r'Environment/Maps/map.txt')
 
 plt.ion()
 

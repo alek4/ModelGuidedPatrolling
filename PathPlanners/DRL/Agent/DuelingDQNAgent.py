@@ -137,8 +137,8 @@ class MultiAgentDuelingDQNAgent:
 		self.dqn_target.eval()
 		
 		""" Optimizer """
-		# self.optimizer = optim.Adam(self.dqn.parameters(), lr=self.learning_rate)
-		self.optimizer = optim.SGD(self.dqn.parameters(), lr=self.learning_rate)
+		self.optimizer = optim.Adam(self.dqn.parameters(), lr=self.learning_rate)
+		# self.optimizer = optim.SGD(self.dqn.parameters(), lr=self.learning_rate)
 		
 		""" Actual list of transitions """
 		self.transition = list()
@@ -387,17 +387,18 @@ class MultiAgentDuelingDQNAgent:
 					self.memory.store(*self.transition)
 					
 				else:
-				
-					for agent_id in next_state.keys():
-						# Store every observation for every agent
-						self.transition = [state[agent_id],
-						                   actions[agent_id],
-						                   reward[agent_id],
-						                   next_state[agent_id],
-						                   done[agent_id],
-						                   {}]
-						
-						self.memory.store(*self.transition)
+					# salva le osservazioni ogni 5 steps
+					if steps % 5 == 0:
+						for agent_id in next_state.keys():
+							# Store every observation for every agent
+							self.transition = [state[agent_id],
+											actions[agent_id],
+											reward[agent_id],
+											next_state[agent_id],
+											done[agent_id],
+											{}]
+							
+							self.memory.store(*self.transition)
 					
 					
 				
